@@ -1,0 +1,114 @@
+<?php
+/**
+ * @var \SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Info $block
+ */
+
+$transaction = $block->getTransaction();
+
+$transactionAdminDate = $block->formatDate(
+    $block->getTransactionAdminDate($transaction->getCreatedAt()),
+    \IntlDateFormatter::MEDIUM,
+    true
+);
+
+$transactionStoreDate = $block->formatDate(
+    $transaction->getCreatedAt(),
+    \IntlDateFormatter::MEDIUM,
+    true,
+    $block->getTimezoneForStore($transaction->getStore())
+);
+
+$customerUrl = $block->getCustomerViewUrl();
+$allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
+?>
+
+<section class="admin__page-section order-view-account-information">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Transaction & Account Information')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item order-information">
+            <?php /* Transaction Information */ ?>
+            <div class="admin__page-section-item-title">
+                <span class="title">
+                    <?= $block->escapeHtml(__('Refund Transaction # %1', $transaction->getId())) ?>
+                </span>
+            </div>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary order-information-table">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Refund Date')) ?></th>
+                        <td><?= $block->escapeHtml($transactionAdminDate) ?></td>
+                    </tr>
+                    <?php if ($transactionAdminDate != $transactionStoreDate): ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Refund Date (%1)', $block->getTimezoneForStore($transaction->getStore()))) ?></th>
+                            <td><?= $block->escapeHtml($transactionStoreDate) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?= $block->getChildHtml() ?>
+                    <?php if ($block->isSingleStoreMode() == false): ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Refunded From')) ?></th>
+                            <td><?= $block->escapeHtml($block->getTransactionStoreName(), ['br']) ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if ($transaction->getExchangeOrderId()): ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Link to the Exchange Order')) ?></th>
+                            <td>
+                                <a href="<?= $block->escapeHtml($block->getOrderExchangeViewUrl($transaction->getExchangeOrderId())) ?>" target="_blank">
+                                    <?= $block->escapeHtml($transaction->getExchangeOrderIncrementId()) ?>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin__page-section-item order-account-information">
+            <?php /* Account Information */ ?>
+            <div class="admin__page-section-item-title">
+                <span class="title"><?= $block->escapeHtml(__('Account Information')) ?></span>
+                <div class="actions">
+                    <?php if ($customerUrl) : ?>
+                        <a href="<?= /* @noEscape */
+                        $customerUrl ?>" target="_blank">
+                            <?= $block->escapeHtml(__('Edit Customer')) ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary order-account-information-table">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Customer Name')) ?></th>
+                        <td>
+                            <?php if ($customerUrl): ?>
+                                <a href="<?= $block->escapeUrl($customerUrl) ?>" target="_blank">
+                                    <span><?= $block->escapeHtml($transaction->getCustomerName()) ?></span>
+                                </a>
+                            <?php else: ?>
+                                <?= $block->escapeHtml($transaction->getCustomerName()) ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Email')) ?></th>
+                        <td><a href="mailto:<?php echo $block->escapeHtml($transaction->getCustomerEmail()) ?>"><?php echo $block->escapeHtml(
+                                    $transaction->getCustomerEmail()) ?></a></td>
+                    </tr>
+                    <?php if ($groupName = $block->getCustomerGroupName()) : ?>
+                        <tr>
+                            <th><?= $block->escapeHtml(__('Customer Group')) ?></th>
+                            <td><?= $block->escapeHtml($groupName) ?></td>
+                        </tr>
+                    <?php endif; ?>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

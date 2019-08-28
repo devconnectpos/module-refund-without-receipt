@@ -1,0 +1,72 @@
+<?php /** @var $block \SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Tab\Info */ ?>
+<?php $transaction = $block->getTransaction() ?>
+
+<?php echo $block->getChildHtml('transaction_info') ?>
+<input type="hidden" name="transaction_id" value="<?php echo /* @escapeNotVerified */
+$transaction->getId() ?>"/>
+
+<section class="admin__page-section order-view-billing-shipping">
+    <div class="admin__page-section-title">
+        <span class="title"><?php echo /* @escapeNotVerified */
+            __('Payment') ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item order-payment-method">
+            <?php /* Payment Method */ ?>
+            <div class="admin__page-section-item-title">
+                <span class="title"><?php echo /* @escapeNotVerified */
+                    __('Payment Information') ?></span>
+            </div>
+            <div class="admin__page-section-item-content">
+                <div class="order-payment-method-title">
+                    <?php if ($block->getPayment()): ?>
+                        <b><?php echo $block->escapeHtml(__('Connect-POS Payment')) ?></b>
+                        <br>
+                        <br>
+                        <?php foreach ($block->getPayment() as $payment) {
+                            ?>
+                            <div style="margin-left: 15px">
+                                <p style="font-weight: 700;font-style: italic">
+                                    <?php echo $payment['title'];
+                                    if (isset($payment['data']['ref'])) {
+                                        echo ": Ref#" . $payment['data']['ref'];
+                                    }
+                                    ?></p>
+                                <p><em><?php echo $payment['created_at'] ?></em></p>
+                                <p><?php echo $block->getTransaction()->formatPrice($payment['amount']) ?></p>
+                            </div>
+                            <?php
+                        } ?>
+                    <?php endif; ?>
+                </div>
+                <div class="order-payment-currency"><?php echo /* @escapeNotVerified */
+                    __('The order was placed using %1.', $transaction->getCurrencyCode()) ?></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?php echo /* @escapeNotVerified */
+            __('Items Refunded') ?></span>
+    </div>
+    <?php echo $block->getItemsHtml() ?>
+</section>
+
+<section class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?php echo /* @escapeNotVerified */
+            __('Refund Total') ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item order-totals">
+            <div class="admin__page-section-item-title">
+                <span class="title"><?php echo /* @escapeNotVerified */
+                    __('Refund Totals') ?></span>
+            </div>
+            <?php echo $block->getTotalsHtml() ?>
+        </div>
+    </div>
+</section>
+

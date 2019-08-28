@@ -1,0 +1,34 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php
+/**
+ * @var \SM\RefundWithoutReceipt\Block\Adminhtml\Items\Column\Name $block
+ */
+?>
+
+<?php if ($_item = $block->getItem()): ?>
+    <div id="order_item_<?= $block->escapeHtml($_item->getId()) ?>_title"
+         class="product-title">
+        <?= $block->escapeHtml($_item->getProductName()) ?>
+    </div>
+    <div class="product-sku-block">
+        <span><?= $block->escapeHtml(__('SKU'))?>:</span> <?=$block->escapeHtml($block->getSku()) ?>
+    </div>
+    <?php if (!!$block->getOrderOptions()): ?>
+        <dl class="item-options">
+            <?php foreach ($block->getOrderOptions() as $_option): ?>
+                <dt><?= isset($_option['label']) ? $block->escapeHtml($_option['label']) : '' ?>:</dt>
+                <dd>
+                    <?= isset($_option['value']) ? $block->escapeHtml($_option['value']) : '' ?>
+                </dd>
+            <?php endforeach; ?>
+        </dl>
+    <?php endif; ?>
+<?php endif; ?>

@@ -1,0 +1,44 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="admin.scope.col.wrap" htmlClass="admin__old" />
+        <referenceContainer name="content">
+            <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View" name="smrefundwr_transaction_view"/>
+        </referenceContainer>
+        <referenceContainer name="left">
+            <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Tabs" name="smrefundwr_transaction_tabs">
+                <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Tab\Info" name="transaction_tab_info" template="SM_RefundWithoutReceipt::order/view/tab/info.phtml">
+                    <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Info" name="transaction_info" template="SM_RefundWithoutReceipt::order/view/info.phtml" />
+                    <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Items" name="transaction_items" template="SM_RefundWithoutReceipt::order/view/items.phtml">
+                        <arguments>
+                            <argument name="columns" xsi:type="array">
+                                <item name="product" xsi:type="string" translate="true">Product</item>
+                                <item name="product-price" xsi:type="string" translate="true">Price</item>
+                                <item name="qty" xsi:type="string" translate="true">Qty</item>
+                                <item name="subtotal" xsi:type="string" translate="true">Subtotal</item>
+                                <item name="total" xsi:type="string" translate="true">Row Total</item>
+                            </argument>
+                        </arguments>
+                        <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\View\Items\Renderer\DefaultRenderer" as="default" name="default_order_items_renderer" template="SM_RefundWithoutReceipt::order/view/items/renderer/default.phtml">
+                            <arguments>
+                                <argument name="columns" xsi:type="array">
+                                    <item name="product" xsi:type="string" translate="false">col-product</item>
+                                    <item name="product-price" xsi:type="string" translate="false">col-price</item>
+                                    <item name="qty" xsi:type="string" translate="false">col-ordered-qty</item>
+                                    <item name="subtotal" xsi:type="string" translate="false">col-subtotal</item>
+                                    <item name="total" xsi:type="string" translate="false">col-total</item>
+                                </argument>
+                            </arguments>
+                        </block>
+                        <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Items\Column\Qty" name="column_qty" template="SM_RefundWithoutReceipt::items/column/qty.phtml" group="column"/>
+                        <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Items\Column\Name" name="column_name" template="SM_RefundWithoutReceipt::items/column/name.phtml" group="column"/>
+                    </block>
+                    <block class="SM\RefundWithoutReceipt\Block\Adminhtml\Transaction\Totals" name="transaction_totals" template="SM_RefundWithoutReceipt::order/totals.phtml" />
+                </block>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">transaction_info</argument>
+                    <argument name="block" xsi:type="string">transaction_tab_info</argument>
+                </action>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

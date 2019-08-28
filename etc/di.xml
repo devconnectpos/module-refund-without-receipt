@@ -1,0 +1,15 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <preference for="SM\RefundWithoutReceipt\Api\RefundWithoutReceiptTransactionRepositoryInterface" type="SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionRepository"/>
+    <preference for="SM\RefundWithoutReceipt\Api\Data\RefundWithoutReceiptTransactionInterface" type="SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction"/>
+    <preference for="SM\RefundWithoutReceipt\Api\RefundWithoutReceiptItemRepositoryInterface" type="SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItemRepository"/>
+    <preference for="SM\RefundWithoutReceipt\Api\Data\RefundWithoutReceiptItemInterface" type="SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItem"/>
+
+    <virtualType name="SMRefundWithoutReceiptGridDataProvider" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider"/>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="smrefundwr_transaction_grid_data_source" xsi:type="string">SM\RefundWithoutReceipt\Model\ResourceModel\RefundWithoutReceiptTransaction\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
