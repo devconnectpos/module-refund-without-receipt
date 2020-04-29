@@ -74,16 +74,6 @@
                 </item>
             </item>
         </argument>
-        <!--        <selectionsColumn name="ids">-->
-        <!--            <argument name="data" xsi:type="array">-->
-        <!--                <item name="config" xsi:type="array">-->
-        <!--                    <item name="resizeEnabled" xsi:type="boolean">false</item>-->
-        <!--                    <item name="resizeDefaultWidth" xsi:type="string">55</item>-->
-        <!--                    <item name="indexField" xsi:type="string">transaction_id</item>-->
-        <!--                    <item name="sortable" xsi:type="boolean">false</item>-->
-        <!--                </item>-->
-        <!--            </argument>-->
-        <!--        </selectionsColumn>-->
         <column name="transaction_id">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
@@ -98,6 +88,22 @@
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">false</item>
                     <item name="label" xsi:type="string" translate="true">Refund Amount</item>
+                </item>
+            </argument>
+        </column>
+        <column name="tax_percent">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">false</item>
+                    <item name="label" xsi:type="string" translate="true">Tax Percent</item>
+                </item>
+            </argument>
+        </column>
+        <column name="tax_amount" class="Magento\Sales\Ui\Component\Listing\Column\PurchasedPrice">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">false</item>
+                    <item name="label" xsi:type="string" translate="true">Tax Amount</item>
                 </item>
             </argument>
         </column>

@@ -16,7 +16,6 @@ interface RefundWithoutReceiptItemInterface
      */
     const ITEM_ID             = 'item_d';
     const TRANSACTION_ID      = 'transaction_id';
-    const SHIFT_ADJUSTMENT_ID = 'shift_adjustment_id';
     const PRODUCT_ID          = 'product_id';
     const PRODUCT_TYPE        = 'product_type';
     const PRODUCT_OPTIONS     = 'product_options';
@@ -59,35 +58,7 @@ interface RefundWithoutReceiptItemInterface
      * @return $this
      */
     public function setTransactionId($transactionId);
-
-    /**
-     * Get Shift Adjustment Id
-     *
-     * @return int|null
-     */
-    public function getShiftAdjustmentId();
-
-    /**
-     * @param int $shiftAdjustmentId
-     *
-     * @return $this
-     */
-    public function setShiftAdjustmentId($shiftAdjustmentId);
-
-    /**
-     * Get Shift Id
-     *
-     * @return int|null
-     */
-    public function getShiftId();
-
-    /**
-     * @param int $shiftId
-     *
-     * @return $this
-     */
-    public function setShiftId($shiftId);
-
+    
     /**
      * @return int|null
      */
