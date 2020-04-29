@@ -79,46 +79,6 @@ class RefundWithoutReceiptItem extends AbstractModel implements RefundWithoutRec
     }
 
     /**
-     * Get Shift Adjustment Id
-     *
-     * @return int|null
-     */
-    public function getShiftAdjustmentId()
-    {
-        return $this->getData(self::SHIFT_ADJUSTMENT_ID);
-    }
-
-    /**
-     * @param int $shiftAdjustmentId
-     *
-     * @return $this
-     */
-    public function setShiftAdjustmentId($shiftAdjustmentId)
-    {
-        return $this->setData(self::SHIFT_ADJUSTMENT_ID, $shiftAdjustmentId);
-    }
-
-    /**
-     * Get Shift Id
-     *
-     * @return int|null
-     */
-    public function getShiftId()
-    {
-        return $this->getData(self::SHIFT_ADJUSTMENT_ID);
-    }
-
-    /**
-     * @param int $shiftId
-     *
-     * @return $this
-     */
-    public function setShiftId($shiftId)
-    {
-        return $this->setData(self::SHIFT_ADJUSTMENT_ID, $shiftId);
-    }
-
-    /**
      * @return int|null
      */
     public function getProductId()

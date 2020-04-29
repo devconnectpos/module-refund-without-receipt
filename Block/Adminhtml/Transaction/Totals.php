@@ -68,12 +68,20 @@ class Totals extends Template
         $this->totals['subtotal'] = new DataObject(
             [
                 'code'       => 'subtotal',
-                'value'      => $this->getTransaction()->getTotalRefundAmount(),
-                'base_value' => $this->getTransaction()->getBaseTotalRefundAmount(),
+                'value'      => $this->getTransaction()->getSubTotalRefundAmount(),
+                'base_value' => $this->getTransaction()->getBaseSubTotalRefundAmount(),
                 'label'      => __('Subtotal'),
             ]
         );
-
+        
+	    $this->totals['tax'] = new DataObject(
+		    [
+			    'code'       => 'tax',
+			    'value'      => $this->getTransaction()->getTaxAmount(),
+			    'base_value' => $this->getTransaction()->getBaseTaxAmount(),
+			    'label'      => __('Tax'),
+		    ]
+	    );
 
         $this->totals['grand_total'] = new DataObject(
             [

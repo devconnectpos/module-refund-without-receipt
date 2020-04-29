@@ -197,23 +197,27 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
     public function saveTransaction()
     {
         $data              = $this->getRequest()->getParams();
-        $refundTransaction = $this->createRefundTransaction();
         $results           = [];
         $payment           = null;
+	    $refundItems       = $data['items'];
         // only 1 payment allowed when refund, so we get the first one.
         if (isset($data['order']['payment_data'])
             && is_array($data['order']['payment_data'])
             && count($data['order']['payment_data']) > 0) {
             $payment = $data['order']['payment_data'][0];
         }
+	    
+	    $refundTransaction = $this->createRefundTransaction();
+	
+	    if ($payment !== null && $payment['type'] !== RetailPayment::REFUND_TO_STORE_CREDIT_PAYMENT_TYPE) {
+		    $this->creatShiftAdjustmentTransaction($refundItems, $refundTransaction);
+	    }
+        
         if ($refundTransactionId = $refundTransaction->getId()) {
             $refundedItems = [];
-            $refundItems   = $data['items'];
             foreach ($refundItems as $item) {
                 $item['shift_adjustment_id'] = null;
-                if ($payment !== null && $payment['type'] !== RetailPayment::REFUND_TO_STORE_CREDIT_PAYMENT_TYPE) {
-                    $item['shift_adjustment_id'] = $this->creatShiftAdjustmentTransaction($item, $refundTransaction);
-                }
+                
                 $refundItem   = $this->createRefundItemRecord($item, $refundTransactionId);
                 $refundedItem = new RefundWithoutReceiptTransaction\RefundedItem();
                 $refundedItem->addData($refundItem->getData());
@@ -246,42 +250,60 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
                     ->setItems($results)
                     ->getOutput();
     }
-
-    /**
-     * @param $item
-     *
-     * @param $transaction
-     *
-     * @return int
-     * @throws \Exception
-     */
-    protected function creatShiftAdjustmentTransaction($item, $transaction)
+	
+	/**
+	 * @param array $items
+	 *
+	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction $transaction
+	 *
+	 * @return RefundWithoutReceiptManagement
+	 * @throws \Magento\Framework\Exception\AlreadyExistsException
+	 * @throws Exception
+	 */
+    protected function creatShiftAdjustmentTransaction($items, $transaction)
     {
         $outletId   = $this->getRequest()->getParam('outlet_id');
         $registerId = $this->getRequest()->getParam('register_id');
         $userId     = $this->getRequest()->getParam('user_id');
         $userName   = $this->getRequest()->getParam('user_name');
-        $amount     = $item['row_total'];
+	    $amount     = $transaction->getTotalRefundAmount();
         $shiftId    = $this->getOpenShiftId($outletId, $registerId);
         $created_at = $this->retailHelper->getCurrentTime();
 
         $shiftAdjustment = $this->shiftAdjustmentFactory->create();
-        $note            = 'Refund [' . $item['product']['sku'] . '] - [' . $item['product']['name'] . ']';
-        if (isset($item['buy_request']['custom_sale'])) {
-            $note = 'Refund Custom Sales Product - [' . $item['buy_request']['custom_sale']['name'] . ']';
+        $note = '';
+        $itemsCount = count($items);
+	    for($i = 0; $i < $itemsCount; $i++) {
+		    $itemNote = 'Refund [' . $items[$i]['product']['sku'] . '] - [' . $items[$i]['product']['name'] . ']' . ' x' . $items[$i]['qty'];
+		    if (isset($items[$i]['buy_request']['custom_sale'])) {
+			    $itemNote = 'Refund Custom Sales Product - [' . $items[$i]['buy_request']['custom_sale']['name'] . ']' . ' x' . $items[$i]['qty'];
+		    }
+		    $note .= $itemNote;
+		    if ($i != ($itemsCount - 1)) {
+		    	$note .= '<br>';
+		    }
         }
-        $shiftAdjustment->setData('shift_id', $shiftId)
-                        ->setData('user_name', $userName)
-                        ->setData('user_id', $userId)
-                        ->setData('amount', $amount)
-                        ->setData('note', $note)
-                        ->setData('is_in', 0)
-                        ->setData('created_at', $created_at)
-                        ->save();
+	    try {
+		    $shiftAdjustment->setData('shift_id', $shiftId)
+			    ->setData('user_name', $userName)
+			    ->setData('user_id', $userId)
+			    ->setData('amount', $amount)
+			    ->setData('note', $note)
+			    ->setData('is_in', 0)
+			    ->setData('created_at', $created_at)
+			    ->save();
+	    } catch (\Exception $exception) {
+	    	throw new Exception(__($exception->getMessage()));
+	    }
 
+	    //add journal log
         $this->addShiftAdjustmentLog($shiftAdjustment, $transaction);
 
-        return $shiftAdjustment->getId();
+	    //add shift and shift adjustment id to transaction
+        $transaction->setShiftAdjustmentId($shiftAdjustment->getId())->setShiftId($shiftId);
+        $this->refundWithoutReceiptTransactionRepository->save($transaction);
+        
+        return $this;
     }
 
     /**
@@ -312,8 +334,9 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
         $data              = $this->getRequest()->getParams();
         $customer          = $data['customer'];
         $created_at        = $this->retailHelper->getCurrentTime();
-        $refundTransaction = $this->refundWithoutReceiptTransactionFactory->create();
         $sellerIds         = $this->getRequest()->getParam('sellers');
+		/** @var \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction $refundTransaction */
+	    $refundTransaction = $this->refundWithoutReceiptTransactionFactory->create();
         try {
             $refundTransaction->setCustomerId($customer['id'])
                               ->setCustomerGroupId($customer['customer_group_id'])
@@ -325,6 +348,8 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
                               ->setCustomerTelephone($customer['telephone'])
                               ->setTotalRefundAmount($data['total_refund_amount'])
                               ->setBaseTotalRefundAmount($data['base_total_refund_amount'])
+                              ->setSubtotalRefundAmount($data['subtotal_refund_amount'])
+                              ->setBaseSubtotalRefundAmount($data['base_subtotal_refund_amount'])
                               ->setStoreId($data['store_id'])
                               ->setOutletId($data['outlet_id'])
                               ->setRegisterId($data['register_id'])
@@ -337,6 +362,15 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
             if (isset($data['warehouse_id']) && $data['warehouse_id'] !== null) {
                 $refundTransaction->setWarehouseId($data['warehouse_id']);
             }
+            if (isset($data['refundTaxPercent'])) {
+            	$refundTransaction->setTaxPercent($data['refundTaxPercent']);
+            }
+	        if (isset($data['refundTaxAmount'])) {
+		        $refundTransaction->setTaxAmount($data['refundTaxAmount']);
+	        }
+	        if (isset($data['baseRefundTaxAmount'])) {
+		        $refundTransaction->setBaseTaxAmount($data['baseRefundTaxAmount']);
+	        }
             $this->refundWithoutReceiptTransactionRepository->save($refundTransaction);
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());

@@ -36,6 +36,13 @@ interface RefundWithoutReceiptTransactionInterface
     const PAYMENT_DATA                = 'payment_data';
     const CREATED_AT                  = 'created_at';
     const UPDATED_AT                  = 'updated_at';
+    const TAX_PERCENT                 = 'tax_percent';
+    const TAX_AMOUNT                  = 'tax_amount';
+    const BASE_TAX_AMOUNT             = 'base_tax_amount';
+    const SUBTOTAL                    = 'subtotal_refund_amount';
+    const BASE_SUBTOTAL               = 'base_subtotal_refund_amount';
+	const SHIFT_ADJUSTMENT_ID         = 'shift_adjustment_id';
+	const SHIFT_ID                    = 'shift_id';
     /**#@-*/
 
     /**
@@ -315,4 +322,87 @@ interface RefundWithoutReceiptTransactionInterface
      * @return $this
      */
     public function setUpdatedAt($updatedAt);
+	
+	/**
+	 * @return float|null
+	 */
+	public function getTaxPercent();
+	
+	/**
+	 * @param $taxPercent
+	 * @return $this
+	 */
+	public function setTaxPercent($taxPercent);
+	
+	/**
+	 * @return float|null
+	 */
+	public function getTaxAmount();
+	
+	/**
+	 * @param $taxAmount
+	 * @return $this
+	 */
+	public function setTaxAmount($taxAmount);
+	
+	/**
+	 * @return float|null
+	 */
+	public function getBaseTaxAmount();
+	
+	/**
+	 * @param $taxAmount
+	 * @return $this
+	 */
+	public function setBaseTaxAmount($taxAmount);
+	
+	/**
+	 * @return float|null
+	 */
+	public function getSubtotalRefundAmount();
+	
+	/**
+	 * @param $amount
+	 * @return $this
+	 */
+	public function setSubtotalRefundAmount($amount);
+	
+	/**
+	 * @return float|null
+	 */
+	public function getBaseSubtotalRefundAmount();
+	
+	/**
+	 * @param $amount
+	 * @return $this
+	 */
+	public function setBaseSubtotalRefundAmount($amount);
+	
+	/**
+	 * Get Shift Adjustment Id
+	 *
+	 * @return int|null
+	 */
+	public function getShiftAdjustmentId();
+	
+	/**
+	 * @param int $shiftAdjustmentId
+	 *
+	 * @return $this
+	 */
+	public function setShiftAdjustmentId($shiftAdjustmentId);
+	
+	/**
+	 * Get Shift Id
+	 *
+	 * @return int|null
+	 */
+	public function getShiftId();
+	
+	/**
+	 * @param int $shiftId
+	 *
+	 * @return $this
+	 */
+	public function setShiftId($shiftId);
 }

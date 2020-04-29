@@ -651,4 +651,124 @@ class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWit
     {
         return $this->getCurrencyCode() != $this->getBaseCurrencyCode();
     }
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getTaxPercent()
+	{
+		return $this->getData(self::TAX_PERCENT);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function setTaxPercent($taxPercent)
+	{
+		return $this->setData(self::TAX_PERCENT, $taxPercent);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getTaxAmount()
+	{
+		return $this->getData(self::TAX_AMOUNT);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function setTaxAmount($taxAmount)
+	{
+		return $this->setData(self::TAX_AMOUNT, $taxAmount);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getBaseTaxAmount()
+	{
+		return $this->getData(self::BASE_TAX_AMOUNT);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function setBaseTaxAmount($taxAmount)
+	{
+		return $this->setData(self::BASE_TAX_AMOUNT, $taxAmount);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getSubtotalRefundAmount()
+	{
+		return $this->getData(self::SUBTOTAL);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function setSubtotalRefundAmount($amount)
+	{
+		return $this->setData(self::SUBTOTAL, $amount);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getBaseSubtotalRefundAmount()
+	{
+		return $this->getData(self::BASE_SUBTOTAL);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function setBaseSubtotalRefundAmount($amount)
+	{
+		return $this->setData(self::BASE_SUBTOTAL, $amount);
+	}
+	
+	/**
+	 * Get Shift Adjustment Id
+	 *
+	 * @return int|null
+	 */
+	public function getShiftAdjustmentId()
+	{
+		return $this->getData(self::SHIFT_ADJUSTMENT_ID);
+	}
+	
+	/**
+	 * @param int $shiftAdjustmentId
+	 *
+	 * @return $this
+	 */
+	public function setShiftAdjustmentId($shiftAdjustmentId)
+	{
+		return $this->setData(self::SHIFT_ADJUSTMENT_ID, $shiftAdjustmentId);
+	}
+	
+	/**
+	 * Get Shift Id
+	 *
+	 * @return int|null
+	 */
+	public function getShiftId()
+	{
+		return $this->getData(self::SHIFT_ID);
+	}
+	
+	/**
+	 * @param int $shiftId
+	 *
+	 * @return $this
+	 */
+	public function setShiftId($shiftId)
+	{
+		return $this->setData(self::SHIFT_ID, $shiftId);
+	}
 }
