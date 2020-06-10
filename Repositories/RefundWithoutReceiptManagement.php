@@ -10,6 +10,7 @@ namespace SM\RefundWithoutReceipt\Repositories;
 use Exception;
 use Magento\Catalog\Model\Product;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Directory\Model\Currency;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -28,7 +29,9 @@ use SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionFactory;
 use SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionRepository;
 use SM\RefundWithoutReceipt\Model\ResourceModel\RefundWithoutReceiptItem\CollectionFactory as RefundWithoutReceiptItemCollectionFactory;
 use SM\RefundWithoutReceipt\Model\ResourceModel\RefundWithoutReceiptTransaction\CollectionFactory as RefundWithoutReceiptTransactionCollectionFactory;
+use SM\Shift\Api\RetailTransactionRepositoryInterface;
 use SM\Shift\Model\ResourceModel\Shift\CollectionFactory as ShiftCollectionFactory;
+use SM\Shift\Model\RetailTransactionFactory;
 use SM\Shift\Model\ShiftInOutFactory as ShiftAdjustmentFactory;
 use SM\XRetail\Helper\Data as RetailHelper;
 use SM\XRetail\Helper\DataConfig;
@@ -118,33 +121,48 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
      * @var \Magento\Framework\DB\Adapter\AdapterInterface
      */
     protected $connection;
-
-
-    /**
-     * RefundWithoutReceiptManagement constructor.
-     *
-     * @param RequestInterface                                                         $requestInterface
-     * @param DataConfig                                                               $dataConfig
-     * @param StoreManagerInterface                                                    $storeManager
-     * @param RefundWithoutReceiptTransactionCollectionFactory                         $refundWithoutReceiptTransactionCollectionFactory
-     * @param RefundWithoutReceiptItemCollectionFactory                                $refundWithoutReceiptItemCollectionFactory
-     * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionFactory    $refundWithoutReceiptTransactionFactory
-     * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItemFactory           $refundWithoutReceiptItemFactory
-     * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionRepository $refundWithoutReceiptTransactionRepository
-     * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItemRepository        $refundWithoutReceiptItemRepository
-     * @param DateTime                                                                 $dateTime
-     * @param RetailHelper                                                             $retailHelper
-     * @param ShiftCollectionFactory                                                   $shiftCollectionFactory
-     * @param ShiftAdjustmentFactory                                                   $shiftAdjustmentFactory
-     * @param \Magento\Catalog\Model\Product                                           $product
-     * @param IntegrateHelper                                                          $integrateHelper
-     * @param \Magento\CatalogInventory\Api\StockRegistryInterface                     $stockRegistry
-     * @param \Magento\Framework\ObjectManagerInterface                                $objectManager
-     * @param \SM\Integrate\Model\WarehouseIntegrateManagement                         $warehouseIntegrateManagement
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface                       $scopeConfig
-     * @param \Magento\Framework\Event\ManagerInterface                                $evenManager
-     * @param \Magento\Framework\App\ResourceConnection                                $resource
-     */
+	/**
+	 * @var RetailTransactionFactory
+	 */
+	private $retailTransactionFactory;
+	/**
+	 * @var Currency
+	 */
+	private $currencyModel;
+	/**
+	 * @var RetailTransactionRepositoryInterface
+	 */
+	private $retailTransactionRepository;
+	
+	
+	/**
+	 * RefundWithoutReceiptManagement constructor.
+	 *
+	 * @param RequestInterface $requestInterface
+	 * @param DataConfig $dataConfig
+	 * @param StoreManagerInterface $storeManager
+	 * @param RefundWithoutReceiptTransactionCollectionFactory $refundWithoutReceiptTransactionCollectionFactory
+	 * @param RefundWithoutReceiptItemCollectionFactory $refundWithoutReceiptItemCollectionFactory
+	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionFactory $refundWithoutReceiptTransactionFactory
+	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItemFactory $refundWithoutReceiptItemFactory
+	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransactionRepository $refundWithoutReceiptTransactionRepository
+	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptItemRepository $refundWithoutReceiptItemRepository
+	 * @param DateTime $dateTime
+	 * @param RetailHelper $retailHelper
+	 * @param ShiftCollectionFactory $shiftCollectionFactory
+	 * @param ShiftAdjustmentFactory $shiftAdjustmentFactory
+	 * @param \Magento\Catalog\Model\Product $product
+	 * @param IntegrateHelper $integrateHelper
+	 * @param \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry
+	 * @param \Magento\Framework\ObjectManagerInterface $objectManager
+	 * @param \SM\Integrate\Model\WarehouseIntegrateManagement $warehouseIntegrateManagement
+	 * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+	 * @param \Magento\Framework\Event\ManagerInterface $evenManager
+	 * @param \Magento\Framework\App\ResourceConnection $resource
+	 * @param RetailTransactionFactory $retailTransactionFactory
+	 * @param RetailTransactionRepositoryInterface $retailTransactionRepository
+	 * @param Currency $currencyModel
+	 */
     public function __construct(
         RequestInterface $requestInterface,
         DataConfig $dataConfig,
@@ -166,7 +184,10 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
         WarehouseIntegrateManagement $warehouseIntegrateManagement,
         ScopeConfigInterface $scopeConfig,
         ManagerInterface $evenManager,
-        ResourceConnection $resource
+        ResourceConnection $resource,
+        RetailTransactionFactory $retailTransactionFactory,
+        RetailTransactionRepositoryInterface $retailTransactionRepository,
+        Currency $currencyModel
     ) {
         $this->refundWithoutReceiptTransactionCollectionFactory = $refundWithoutReceiptTransactionCollectionFactory;
         $this->refundWithoutReceiptItemCollectionFactory        = $refundWithoutReceiptItemCollectionFactory;
@@ -187,7 +208,12 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
         $this->eventManagement                                  = $evenManager;
         $this->resource                                         = $resource;
         $this->connection                                       = $resource->getConnection();
-        parent::__construct($requestInterface, $dataConfig, $storeManager);
+	    $this->retailTransactionFactory                         = $retailTransactionFactory;
+	    $this->retailTransactionRepository                      = $retailTransactionRepository;
+	    $this->storeManager                                     = $storeManager;
+	    $this->currencyModel                                    = $currencyModel;
+	
+	    parent::__construct($requestInterface, $dataConfig, $storeManager);
     }
 
     /**
@@ -210,7 +236,7 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
 	    $refundTransaction = $this->createRefundTransaction();
 	
 	    if ($payment !== null && $payment['type'] !== RetailPayment::REFUND_TO_STORE_CREDIT_PAYMENT_TYPE) {
-		    $this->creatShiftAdjustmentTransaction($refundItems, $refundTransaction);
+		    $this->createRetailTransaction($payment, $refundTransaction);
 	    }
         
         if ($refundTransactionId = $refundTransaction->getId()) {
@@ -249,61 +275,6 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
         return $this->getSearchResult()
                     ->setItems($results)
                     ->getOutput();
-    }
-	
-	/**
-	 * @param array $items
-	 *
-	 * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction $transaction
-	 *
-	 * @return RefundWithoutReceiptManagement
-	 * @throws \Magento\Framework\Exception\AlreadyExistsException
-	 * @throws Exception
-	 */
-    protected function creatShiftAdjustmentTransaction($items, $transaction)
-    {
-        $outletId   = $this->getRequest()->getParam('outlet_id');
-        $registerId = $this->getRequest()->getParam('register_id');
-        $userId     = $this->getRequest()->getParam('user_id');
-        $userName   = $this->getRequest()->getParam('user_name');
-	    $amount     = $transaction->getTotalRefundAmount();
-        $shiftId    = $this->getOpenShiftId($outletId, $registerId);
-        $created_at = $this->retailHelper->getCurrentTime();
-
-        $shiftAdjustment = $this->shiftAdjustmentFactory->create();
-        $note = '';
-        $itemsCount = count($items);
-	    for($i = 0; $i < $itemsCount; $i++) {
-		    $itemNote = 'Refund [' . $items[$i]['product']['sku'] . '] - [' . $items[$i]['product']['name'] . ']' . ' x' . $items[$i]['qty'];
-		    if (isset($items[$i]['buy_request']['custom_sale'])) {
-			    $itemNote = 'Refund Custom Sales Product - [' . $items[$i]['buy_request']['custom_sale']['name'] . ']' . ' x' . $items[$i]['qty'];
-		    }
-		    $note .= $itemNote;
-		    if ($i != ($itemsCount - 1)) {
-		    	$note .= '<br>';
-		    }
-        }
-	    try {
-		    $shiftAdjustment->setData('shift_id', $shiftId)
-			    ->setData('user_name', $userName)
-			    ->setData('user_id', $userId)
-			    ->setData('amount', $amount)
-			    ->setData('note', $note)
-			    ->setData('is_in', 0)
-			    ->setData('created_at', $created_at)
-			    ->save();
-	    } catch (\Exception $exception) {
-	    	throw new Exception(__($exception->getMessage()));
-	    }
-
-	    //add journal log
-        $this->addShiftAdjustmentLog($shiftAdjustment, $transaction);
-
-	    //add shift and shift adjustment id to transaction
-        $transaction->setShiftAdjustmentId($shiftAdjustment->getId())->setShiftId($shiftId);
-        $this->refundWithoutReceiptTransactionRepository->save($transaction);
-        
-        return $this;
     }
 
     /**
@@ -455,31 +426,43 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
 
         return $this->balanceFactory;
     }
-
-    /**
-     * @param \SM\Shift\Model\ShiftInOut                                     $adjustment
-     *
-     * @param \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction $transaction
-     *
-     * @return int
-     */
-    protected function addShiftAdjustmentLog($adjustment, $transaction)
-    {
-        $data            = $this->getRequest()->getParams();
-        $tableName       = $this->resource->getTableName('sm_electronic_journal');
-        $formattedAmount = $transaction->formatPrice($adjustment->getData('amount'), false, false);
-
-        $log = [
-            'outlet_id'         => $data['outlet_id'],
-            'register_id'       => $data['register_id'],
-            'message'           => __('Withdraw %1 from cash drawer', $formattedAmount),
-            'event_type'        => 'CASHWITHDRW',
-            'employee_id'       => $data['user_id'],
-            'employee_username' => $data['user_name'],
-            'amount'            => $adjustment->getData('amount'),
-            'created_at'        => $transaction->getCreatedAt()
-        ];
-
-        return $this->connection->insert($tableName, $log);
-    }
+	
+	protected function createRetailTransaction($paymentData, \SM\RefundWithoutReceipt\Model\RefundWithoutReceiptTransaction $refundTransaction)
+	{
+		$data = $this->getRequestData();
+		
+		$baseCurrencyCode    = $this->storeManager->getStore()->getBaseCurrencyCode();
+		$currentCurrencyCode = $this->storeManager->getStore($data->getData('store_id'))->getCurrentCurrencyCode();
+		$allowedCurrencies   = $this->currencyModel->getConfigAllowCurrencies();
+		$rates               = $this->currencyModel->getCurrencyRates($baseCurrencyCode, array_values($allowedCurrencies));
+		
+		$outletId   = $data->getData('outlet_id');
+		$registerId   = $data->getData('register_id');
+		
+		$baseAmount = $paymentData['amount'];
+		if (isset($rates[$currentCurrencyCode]) && $rates[$currentCurrencyCode] != 0) {
+			$baseAmount = $paymentData['amount'] / $rates[$currentCurrencyCode];
+		}
+		
+		$created_at = $this->retailHelper->getCurrentTime();
+		$retailTransaction         = $this->retailTransactionFactory->create();
+		$retailTransaction->addData(
+			[
+				'outlet_id'     => $outletId,
+				'register_id'   => $registerId,
+				'shift_id'      => $this->getOpenShiftId($outletId, $registerId),
+				'payment_id'    => $paymentData['id'],
+				'payment_title' => $paymentData['title'],
+				'payment_type'  => $paymentData['type'],
+				'amount'        => $paymentData['amount'],
+				'is_purchase'   => 0,
+				"created_at"    => $created_at,
+				'order_id'      => null,
+				"user_name"     => isset($data['user_name']) ? $data['user_name'] : '',
+				'base_amount'   => $baseAmount,
+				'rwr_transaction_id' => $refundTransaction->getId()
+			]
+		);
+		$this->retailTransactionRepository->save($retailTransaction);
+	}
 }
