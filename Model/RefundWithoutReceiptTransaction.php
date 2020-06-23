@@ -24,6 +24,7 @@ use SM\RefundWithoutReceipt\Model\ResourceModel\RefundWithoutReceiptItem\Collect
 class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWithoutReceiptTransactionInterface, IdentityInterface
 {
 
+	protected $_eventPrefix = 'sm_refund_without_receipt_transaction';
     /**
      * Cache tag
      */
