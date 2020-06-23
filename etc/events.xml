@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sm_refund_without_receipt_transaction_save_after">
+        <observer name="connectpos_deduct_reward_points_when_refund_without_receipt" instance="\SM\RefundWithoutReceipt\Observer\DeductRewardPoints"/>
+    </event>
+
+</config>
