@@ -70,17 +70,18 @@ class DeductRewardPoints implements \Magento\Framework\Event\ObserverInterface
 		
 		$pointsDelta = $this->calculateRewardPointToDeduct($transaction, $customerRewardDetails);
 		
-		$this->getRewardFactory()->create()->setCustomerId(
-			$transaction->getCustomerId()
-		)->setWebsiteId(
-			$transaction->getStore()->getWebsiteId()
-		)->setAction(
-			\SM\Integrate\RewardPoint\Magento2EE\Reward::REWARD_ACTION_REFUND_WITHOUT_RECEIPT
-		)->setPointsDelta(
-			$pointsDelta
-		)->setActionEntity(
-			$transaction
-		)->updateRewardPoints();
+		$this->getRewardFactory()->create()
+			->setCustomerId(
+				$transaction->getCustomerId()
+			)->setWebsiteId(
+				$transaction->getStore()->getWebsiteId()
+			)->setAction(
+				\SM\Integrate\RewardPoint\Magento2EE\Reward::REWARD_ACTION_REFUND_WITHOUT_RECEIPT
+			)->setPointsDelta(
+				$pointsDelta
+			)->setActionEntity(
+				$transaction
+			)->updateRewardPoints();
 	}
 	
 	/**
@@ -122,8 +123,8 @@ class DeductRewardPoints implements \Magento\Framework\Event\ObserverInterface
 	 */
 	protected function calculateRewardPointToDeduct($transaction, $customerRewardDetails)
 	{
-		$ratePoint    = $customerRewardDetails->getRateToCurrency()->getPoints(true);
-		$rateCurrency = $customerRewardDetails->getRateToCurrency()->getCurrencyAmount();
+		$ratePoint    = $customerRewardDetails->getRateToPoints()->getPoints(true);
+		$rateCurrency = $customerRewardDetails->getRateToPoints()->getCurrencyAmount();
 		$amount       = $transaction->getTotalRefundAmount();
 
 		return - $amount * $ratePoint / $rateCurrency;
