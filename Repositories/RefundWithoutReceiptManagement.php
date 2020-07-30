@@ -266,7 +266,7 @@ class RefundWithoutReceiptManagement extends ServiceAbstract
                 $this->getStoreCreditFactory()->create()
                      ->setCustomerId($data['customer']['id'])
                      ->setWebsiteId($websiteId)
-                     ->setAmountDelta($data['base_total_refund_amount'])
+                     ->setAmountDelta(isset($data['grandTotal']) ? abs($data['grandTotal']) : $data['base_total_refund_amount'])
                      ->setComment(__('Refund without receipt transaction #%1', $refundTransactionId))
                      ->save();
             }
