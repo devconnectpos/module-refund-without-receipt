@@ -41,7 +41,7 @@ class InstallSchema implements InstallSchemaInterface
      */
     protected function createRefundWithoutReceiptTransactionTable(SchemaSetupInterface $setup)
     {
-        $tableName = $setup->getConnection()->getTableName('sm_refund_without_receipt_transaction');
+        $tableName = $setup->getTable('sm_refund_without_receipt_transaction');
         if (!$setup->getConnection()->isTableExists($tableName)) {
             $table = $setup->getConnection()->newTable($tableName);
             $table->addColumn(
@@ -222,7 +222,7 @@ class InstallSchema implements InstallSchemaInterface
      */
     protected function createRefundWithoutReceiptItemTable(SchemaSetupInterface $setup)
     {
-        $tableName = $setup->getConnection()->getTableName('sm_refund_without_receipt_item');
+        $tableName = $setup->getTable('sm_refund_without_receipt_item');
         if (!$setup->getConnection()->isTableExists($tableName)) {
             $table = $setup->getConnection()->newTable($tableName);
             $table->addColumn(
