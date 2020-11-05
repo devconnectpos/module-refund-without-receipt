@@ -42,6 +42,10 @@ class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWit
      */
     protected $storeManager;
     /**
+     * @var \SM\XRetail\Model\OutletRepository
+     */
+    protected $outletRepository;
+    /**
      * @var \Magento\Directory\Model\Currency
      */
     private $transactionCurrency;
@@ -49,18 +53,19 @@ class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWit
      * @var \Magento\Directory\Model\Currency
      */
     private $baseCurrency;
-
+    
     /**
      * RefundWithoutReceiptTransaction constructor.
      *
-     * @param \Magento\Framework\Model\Context                                                        $context
-     * @param \Magento\Framework\Registry                                                             $registry
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
      * @param \SM\RefundWithoutReceipt\Model\ResourceModel\RefundWithoutReceiptItem\CollectionFactory $refundWithoutReceiptItemCollectionFactory
-     * @param \Magento\Directory\Model\CurrencyFactory                                                $currencyFactory
-     * @param \Magento\Store\Model\StoreManagerInterface                                              $storeManager
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null                            $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null                                      $resourceCollection
-     * @param array                                                                                   $data
+     * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
+     * @param \SM\XRetail\Model\OutletRepository $outletRepository
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -70,12 +75,14 @@ class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWit
         StoreManagerInterface $storeManager,
         AbstractResource $resource = null,
         AbstractDb $resourceCollection = null,
+        \SM\XRetail\Model\OutletRepository $outletRepository,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
         $this->refundWithoutReceiptItemCollectionFactory = $refundWithoutReceiptItemCollectionFactory;
         $this->currencyFactory                           = $currencyFactory;
         $this->storeManager                              = $storeManager;
+        $this->outletRepository = $outletRepository;
     }
 
     /**
@@ -470,7 +477,8 @@ class RefundWithoutReceiptTransaction extends AbstractModel implements RefundWit
 
     public function getCustomerIsGuest()
     {
-        return $this->getCustomerEmail() === Data::DEFAULT_CUSTOMER_RETAIL_EMAIL;
+        $outlet = $this->outletRepository->getById($this->getOutletId());
+        return $this->getCustomerEmail() === $outlet->getData('default_guest_customer_email');
     }
 
     /**
