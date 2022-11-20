@@ -62,7 +62,7 @@ class DefaultColumn extends \SM\RefundWithoutReceipt\Block\Adminhtml\Items\Abstr
     public function getOrderOptions()
     {
         if ($options = $this->getItem()->getProductOptions()) {
-            $options = json_decode($options, true);
+            $options = json_decode((string)$options, true);
             if (isset($options['options'])) {
                 return $options['options'];
             } else if (isset($options['attributes_info'])) {
