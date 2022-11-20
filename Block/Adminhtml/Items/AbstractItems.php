@@ -276,7 +276,7 @@ class AbstractItems extends \Magento\Backend\Block\Template
         if ($item->getTaxPercent() && $item->getTaxString() == '') {
             $percents = [$item->getTaxPercent()];
         } elseif ($item->getTaxString()) {
-            $percents = explode(\Magento\Tax\Model\Config::CALCULATION_STRING_SEPARATOR, $item->getTaxString());
+            $percents = explode(\Magento\Tax\Model\Config::CALCULATION_STRING_SEPARATOR, (string)$item->getTaxString());
         } else {
             return '0%';
         }

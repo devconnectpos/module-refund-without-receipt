@@ -47,7 +47,7 @@ class Info extends AbstractTransaction implements TabInterface
      */
     public function getPayment()
     {
-        return json_decode($this->getTransaction()->getPaymentData(), true);
+        return json_decode((string)$this->getTransaction()->getPaymentData(), true);
     }
 
     /**
